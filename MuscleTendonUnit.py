@@ -78,7 +78,7 @@ class MTU:
 
 	def MTU(self,act,Lmtu,Lmuscle_old,Ltendon_old):
 		Lmuscle=Lmtu-Ltendon_old
-		Vmuscle=(Lmtu-Lmuscle_old)/self.dt
+		Vmuscle=(Lmuscle-Lmuscle_old)/self.dt
 		Factive=MuscleDynamics(self,act,Lmuscle,Vmuscle)
 		Fpassive=PassiveMuscleForce(self,Lmuscle)
 		Fmuscle=Factive+Fpassive
