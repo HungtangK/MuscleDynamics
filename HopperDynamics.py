@@ -86,16 +86,21 @@ if __name__ == '__main__':
 	plt.legend(['Python simulation','Simulink Model'])
 
 	plt.xlabel(['time (s)'])
+	plt.ylabel(['Hop Velocity (m/s)'])
 
 	plt.figure()
 	print(y[:,2])
 	plt.plot(t,y[:,2],'r')
 	plt.plot(t,SimulinkData[:10000,5],'b')
+	plt.xlabel(['time (s)'])
+	plt.ylabel(['Muscle Length (m)'])
 
 	plt.figure()
 	print(y[:,3])
 	plt.plot(t,y[:,3],'r')
 	plt.plot(t,SimulinkData[:10000,8],'b')
+	plt.xlabel(['time (s)'])
+	plt.ylabel(['Muscle Velocity (m/s)'])
 	plt.show()
 
 
