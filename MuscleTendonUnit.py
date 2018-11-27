@@ -29,7 +29,7 @@ class MTU:
 
 
 
-	def MuscleDynamics(self,act,Lm,Vm,fl):
+	def MuscleDynamics(self,act,Lm,Vm):
 
 		# Hill-type Muscles things
 		#print("vm inside muscle",Vm)
@@ -47,16 +47,15 @@ class MTU:
 				#print("here")
 				fv = (1.8 - 0.8*((1 + (Vm/self.Vm_max))/(1 - 7.56*(Vm/0.17/self.Vm_max))))
 
+		a = 3.1108
+		b = 0.8698
+		s = 0.3914
 
-		#a = 3.1108
-		#b = 0.8698
-		#s = 0.3914
 
+		if Lm < 0: # this looks like a hack
+			Lm = 0.
 
-		#if Lm < 0: # this looks like a hack
-		#	Lm = 0.
-
-		#fl = np.exp(-(abs((((Lm/self.L0)**b)-1)/s))**a)
+		fl = np.exp(-(abs((((Lm/self.L0)**b)-1)/s))**a)
 
 		muscleForce = self.F_max*act*fv*fl
 		
@@ -66,6 +65,7 @@ class MTU:
 		return muscleForce,fv,fl
 
 	def Force_vm(self,vm,a,fl):
+		# Where did you get this from?I can't find it in the original model -Hungtang
 		lmopt = 0.055
 		vmmax = 0.45
 		fmlen = 1.4
