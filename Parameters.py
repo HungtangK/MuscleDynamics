@@ -5,6 +5,9 @@
 # Muscle Parameters
 # Units following SI: Force(N), Length(m), Velocity(m/s), Mass(kg)
 
+# Gravitational constant
+g = -9.81
+
 # Vmax got from scaling factor with respect to muscle length:
 factor_Vmax = 0.45/5.5
 
@@ -55,6 +58,10 @@ l2 = 0.2525
 lc2 = (0.1036+0.0972)/2
 I2 = 28.17*2/10000
 
+# For constructing dynamic matrices
+alpha = I1 + I2 + m1 * lc1**2 + m2 * (l1**2 + lc2**2)
+beta = m2 * l1 * lc2
+delta = I2 + m2 * lc2**2
 
 # To be used:
 # Moment arm Feldman et el 1996
