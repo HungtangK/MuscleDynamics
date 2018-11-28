@@ -142,7 +142,7 @@ if __name__ == '__main__':
 	# plt.plot(t,yy[:,4],'r')
 	plt.plot(t,y[:,4],'y')
 	plt.plot(tt,SimulinkData[index,5],'b:')
-	plt.legend(['Python simulation','Simulink Model'])
+	plt.legend(['Python simulation','Simulink Model'],loc='center right')
 	plt.xlabel('time (s)')
 	plt.ylabel('Muscle Length (m)')
 
