@@ -15,6 +15,7 @@ lm0_bb = 16.00/100
 lt0_bb = 23.33/100
 lmtu0_bb = lm0_bb+lt0_bb
 Vmax_bb = factor_Vmax*lm0_bb
+EMA_bb = 3.6/100
 
 # Triceps: Fmax as addition of Lateral, Long and Medial; lengths as the average of Lateral, Long and Medial
 Fmax_tb = 2004.65
@@ -22,6 +23,7 @@ lm0_tb = 13.60/100
 lt0_tb = 12.38/100
 lmtu0_tb = lm0_tb+lt0_tb
 Vmax_tb = factor_Vmax*lm0_tb
+EMA_tb = -2.1/100
 
 # Anterior Deltoid
 Fmax_ad = 2004.65
@@ -29,6 +31,7 @@ lm0_ad = 13.60/100
 lt0_ad = 12.38/100
 lmtu0_ad = lm0_ad+lt0_ad
 Vmax_ad = factor_Vmax*lm0_ad
+EMA_ad=1.9/100
 
 # Posterior Deltoid: 
 Fmax_pd = 2004.65
@@ -36,6 +39,7 @@ lm0_pd = 13.60/100
 lt0_pd = 12.38/100
 lmtu0_pd = lm0_pd+lt0_pd
 Vmax_pd = factor_Vmax*lm0_pd
+EMA_pd = -0.8/100
 
 
 # Bone Parameters, the moment of inertia is with respect to the center of mass
