@@ -12,6 +12,7 @@ class TwoDofArmEnv(gym.Env):
 	def __init__(self,ActiveMuscles='antagonistic',actionParameterization = True,sim_length=0.1):
 		
 		self.sim_length = sim_length
+		print(m1)
 		## ARM PHYSICAL DIMENSIONS - taken from Lan et al. 2008
 		self.m1 = 2.1 # Upper Arm mass
 		self.m2 = 1.0 # Forearm Mass
