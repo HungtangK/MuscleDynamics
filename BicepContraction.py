@@ -6,22 +6,7 @@ from scipy.integrate import odeint
 import matplotlib.animation as animation
 
 
-def bb_momentArm(angle):
-	elbow_angles = angle*180/np.pi
-	moment_arms_bb = coeff_bb_ma[0]*elbow_angles**3 + \
-							coeff_bb_ma[1]*elbow_angles**2 + \
-							coeff_bb_ma[2]*elbow_angles**1 + \
-							coeff_bb_ma[3]*elbow_angles**0
 
-	return moment_arms_bb
-def bb_muscleLength(angle):
-	elbow_angles = angle*180/np.pi
-	muscleLengths_bb = 378.06+ coeff_bb_ml[0]*elbow_angles**4 + \
-							coeff_bb_ml[1]*elbow_angles**3 + \
-							coeff_bb_ml[2]*elbow_angles**2 + \
-							coeff_bb_ml[3]*elbow_angles**1
-
-	return muscleLengths_bb
 
 def TwoLinkDynamics(theta1,theta2,dtheta1,dtheta2,Torques):
 
@@ -71,7 +56,7 @@ def TwoLinkArm(x,t):
 		a=0
 
 	# Method flag, if 1 then mtu based new method if 0 then lm based old method
-	Flag_Method = 1
+	Flag_Method = 0
 
 	# Muscle Dynamics Block
 	if Flag_Method == 0:
@@ -79,20 +64,20 @@ def TwoLinkArm(x,t):
 		F_p = MTU_unit.PassiveMuscleForce(L_m)
 		F_m = F_a + F_p
 	else:
-		Lmtu=bb_muscleLength(theta2)/1000
+		Lmtu=Bicep_MuscleLength(theta2)
 		F_m, Lmuscle_new, Ltendon_new=MTU_unit.MTU(a,Lmtu,x[4],x[5])
 	
 	# Environment Feedback Block
-	ema = bb_momentArm(x[2])
-	Torques = np.array([[0.0],[ema*F_m*0.001]])
+	ema = Bicep_MomentArm(x[2])
+	Torques = np.array([[0.0],[ema*F_m]])
 	acc=TwoLinkDynamics(theta1,theta2,dtheta1,dtheta2,Torques)
 
 	# Postprocessing needed for old method
 	if Flag_Method == 0:
 		L_t = MTU_unit.TendonDynamics(F_m)
 		x_new = x[2] + x[3]*0.0005
-		New_Lmtu = bb_muscleLength(x_new)
-		Lm_new = New_Lmtu*0.001 - L_t
+		New_Lmtu = Bicep_MuscleLength(x_new)
+		Lm_new = New_Lmtu - L_t
 
 	# Returning Derivatives 
 	dx = np.zeros(6,)
@@ -147,7 +132,7 @@ if __name__ == '__main__':
 	t = np.arange(0, 5.0, dt)
 
 	# Initial Condition
-	state = np.array([np.pi/4,0,0,0,0.160,0])
+	state = np.array([np.pi/4,0,0,0,lm0_bb,lt0_bb])
 
 	# Integration
 	pos = odeint(TwoLinkArm, state, t)
