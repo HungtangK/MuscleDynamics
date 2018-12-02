@@ -50,12 +50,6 @@ def TwoLinkArm(x,t):
 	#x[10] - lm_tb
 	#x[11] - lt_tb
 
-	# if (x[2] <= 0) & (x[3] <= 0):
-	# 	x[1] +=  x[3] * I2/(I1+I2)
-	# 	x[3] = 0
-	# 	print('t='+str(t)+'; x[2]='+str(x[2])+'; x[3]='+str(x[3]))
-	# 	print('Hit Elbow Joint Limit!')
-
 	# Activation levels
 	a_ad=act(t,peak[0],duty[0],delay[0],background[0])
 	a_pd=act(t,peak[1],duty[1],delay[1],background[1])
@@ -63,8 +57,8 @@ def TwoLinkArm(x,t):
 	a_tb=act(t,peak[3],duty[3],delay[3],background[3])
 
 	# MTU length from the joint angles
-	Lmtu_ad=ADeltoid_MuscleLength(x[2])
-	Lmtu_pd=PDeltoid_MuscleLength(x[2])
+	Lmtu_ad=ADeltoid_MuscleLength(x[0])
+	Lmtu_pd=PDeltoid_MuscleLength(x[0])
 	Lmtu_bb=Bicep_MuscleLength(x[2])
 	Lmtu_tb=Tricep_MuscleLength(x[2])
 
@@ -75,7 +69,7 @@ def TwoLinkArm(x,t):
 	F_tb, Lmuscle_new_tb, Ltendon_new_tb=MTU_unit.MTU(a_tb,Lmtu_tb,x[10],x[11])
 
 	# Environment Feedback Block
-	Torques = np.array([[ADeltoid_MomentArm(x[1])*F_ad + PDeltoid_MomentArm(x[1])*F_pd],\
+	Torques = np.array([[ADeltoid_MomentArm(x[0])*F_ad + PDeltoid_MomentArm(x[0])*F_pd],\
 						[Bicep_MomentArm(x[2])*F_bb + Tricep_MomentArm(x[2])*F_tb]])
 	acc=TwoLinkDynamics(x[0],x[2],x[1],x[3],Torques)
 
@@ -135,7 +129,7 @@ if __name__ == '__main__':
 	# Activation Parameters
 	f = 3.3
 	T = 1/f
-	peak = 			[3.0,2.0,1.0,1.0]		# peak value of the signal
+	peak = 			[1.0,1.0,1.0,1.0]		# peak value of the signal
 	background = 	[0.5,0.0,0.5,0.0]		# background activation
 	duty = 			[0.5,0.5,0.5,0.5]		# duty cycle dimensionless %cycle
 	delay = 		[0.0,0.5,0.0,0.5]		# delay dimensionless %cycle
@@ -176,12 +170,33 @@ if __name__ == '__main__':
 
 	# Muscle Tendon Length
 	plt.figure()
-	plt.plot(t, pos[:,8])
-	plt.plot(t, pos[:,9])
-	plt.legend(['muscle','tendon'],loc='center right')
-	plt.xlabel('Time')
-	plt.ylabel('Length(m)')
 
+	plt.subplot(4,1,1)
+	plt.plot(t, pos[:,4] - lm0_ad)
+	plt.plot(t, pos[:,5] - lt0_ad)
+	plt.legend(['muscle','tendon'],loc='center right')
+	plt.ylabel('AD')
+
+	plt.subplot(4,1,2)
+	plt.plot(t, pos[:,6] - lm0_pd)
+	plt.plot(t, pos[:,7] - lt0_pd)
+	plt.legend(['muscle','tendon'],loc='center right')
+	plt.ylabel('PD')
+
+	plt.subplot(4,1,3)
+	plt.plot(t, pos[:,8] - lm0_bb)
+	plt.plot(t, pos[:,9] - lt0_bb)
+	plt.legend(['muscle','tendon'],loc='center right')
+	plt.ylabel('BB')
+
+	plt.subplot(4,1,4)
+	plt.plot(t, pos[:,10] - lm0_tb)
+	plt.plot(t, pos[:,11] - lt0_tb)
+	plt.legend(['muscle','tendon'],loc='center right')
+	plt.ylabel('TB')
+	plt.xlabel('Time')
+	
+	# Plot Activation Level
 	plt.figure()
 	for i in range(4):
 		plt.subplot(4, 1, i+1)
@@ -207,7 +222,7 @@ if __name__ == '__main__':
                               init_func=init)
 
 	# Save Animation
-	ani.save('2linkarm_withMuscleDynamics.mp4', fps=60, extra_args=['-vcodec', 'libx264'])
+	# ani.save('2linkarm_withMuscleDynamics.mp4', fps=int(1/dt), extra_args=['-vcodec', 'libx264'])
 
 	plt.show()
 
