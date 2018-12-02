@@ -7,7 +7,6 @@ import matplotlib.animation as animation
 import gym
 
 
-
 class TwoDofArmEnv(gym.Env):
 	def __init__(self,ActiveMuscles='antagonistic',actionParameterization = True,sim_length=0.1):
 		
@@ -62,85 +61,9 @@ class TwoDofArmEnv(gym.Env):
 			self.MTU_unit_tb = MTU(L0=self.lm0_tb,F_max=self.Fmax_tb,Vm_max=-1.0,Lt_slack=lmtu0_pd)
 
 
-	def Bicep_MomentArm(self,angle):
-		# convert to degrees
-		elbow_angle = angle*(180/np.pi)
-
-		ma = coeff_bb_ma[0]*elbow_angle**3 + \
-				coeff_bb_ma[1]*elbow_angle**2 + \
-				coeff_bb_ma[2]*elbow_angle**1 + \
-				coeff_bb_ma[3]*elbow_angle**0
-
-		return ma*0.001
-
-	def Bicep_MuscleLength(self,angle):
-
-		# convert to degrees
-		elbow_angle = angle*(180/np.pi)
-
-		ml = cst_bb + coeff_bb_ml[0]*elbow_angle**4 + \
-					coeff_bb_ml[1]*elbow_angle**3 + \
-					coeff_bb_ml[2]*elbow_angle**2 + \
-					coeff_bb_ml[3]*elbow_angle**1 
-
-		# need to convert to meters from mm
-		return ml*0.001
-
-	def Tricep_MomentArm(self,angle):
-
-		elbow_angle = angle*(180/np.pi)
-
-		ma = coeff_tb_ma[0]*elbow_angle**5 + \
-				coeff_tb_ma[1]*elbow_angle**4 + \
-				coeff_tb_ma[2]*elbow_angle**3 + \
-				coeff_tb_ma[3]*elbow_angle**2 + \
-				coeff_tb_ma[4]*elbow_angle**1 + \
-				coeff_tb_ma[5]*elbow_angle**0
 
 
-
-		return ma*0.001
-
-	def Tricep_MuscleLength(self,angle):
-		elbow_angle = angle*(180/np.pi)
-
-		ml = cst_tb + coeff_tb_ml[0]*elbow_angle**6 + \
-				coeff_tb_ml[1]*elbow_angle**5 + \
-				coeff_tb_ml[2]*elbow_angle**4 + \
-				coeff_tb_ml[3]*elbow_angle**3 + \
-				coeff_tb_ml[4]*elbow_angle**2 + \
-				coeff_tb_ml[5]*elbow_angle**1
-
-		return ml*0.001
-
-
-	def ADeltoid_MomentArm(self,angle):
-		shoudler_angle = angle*(180/np.pi)
-		Poly_ad = np.poly1d(coeff_ad_ma)
-
-		ma = Poly_ad(shoudler_angle)
-
-
-		return ma*0.1
-
-	def PDeltoid_MomentArm(self,angle):
-		shoudler_angle = angle*(180/np.pi)
-		Poly_pd = np.poly1d(coeff_pd_ma)
-
-		ma = Poly_pd(shoudler_angle)
-
-		return ma*0.1
-
-	def ADeltoid_MuscleLength(self,angle):
-		shoulder_angle = angle*(180/np.pi)
-		ml = cst_ad + slope_ad*shoulder_angle
-
-		return ml*0.001
-
-	def PDeltoid_MuscleLength(self,angle):
-		shoulder_angle = angle*(180/np.pi)
-		ml = cst_pd + slope_pd*shoulder_angle
-		return ml*0.001
+	
 
 	def activation_bb(self,t):
 		#print("time",t)

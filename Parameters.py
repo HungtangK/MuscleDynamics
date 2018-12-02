@@ -29,17 +29,17 @@ Vmax_tb = factor_Vmax*lm0_tb
 EMA_tb = -2.1/100
 
 # Anterior Deltoid
-Fmax_ad = 2004.65
-lm0_ad = 13.60/100
-lt0_ad = 12.38/100
+Fmax_ad = 1147.99
+lm0_ad = 11.00/100
+lt0_ad = 10.00/100
 lmtu0_ad = lm0_ad+lt0_ad
 Vmax_ad = factor_Vmax*lm0_ad
-EMA_ad=1.9/100
+EMA_ad= 1.9/100
 
 # Posterior Deltoid: 
-Fmax_pd = 2004.65
-lm0_pd = 13.60/100
-lt0_pd = 12.38/100
+Fmax_pd = 265.99
+lm0_pd = 13.80/100
+lt0_pd = 4.00/100
 lmtu0_pd = lm0_pd+lt0_pd
 Vmax_pd = factor_Vmax*lm0_pd
 EMA_pd = -0.8/100

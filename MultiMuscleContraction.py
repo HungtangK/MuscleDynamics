@@ -135,8 +135,8 @@ if __name__ == '__main__':
 	# Activation Parameters
 	f = 3.3
 	T = 1/f
-	peak = 			[1.0,1.0,1.0,1.0]		# peak value of the signal
-	background = 	[0.0,0.0,0.5,0.0]		# background activation
+	peak = 			[3.0,2.0,1.0,1.0]		# peak value of the signal
+	background = 	[0.5,0.0,0.5,0.0]		# background activation
 	duty = 			[0.5,0.5,0.5,0.5]		# duty cycle dimensionless %cycle
 	delay = 		[0.0,0.5,0.0,0.5]		# delay dimensionless %cycle
 	activation=np.zeros([4,t.shape[0]])
@@ -154,8 +154,8 @@ if __name__ == '__main__':
 						])
 
 	# Integration
-	# pos = odeint(TwoLinkArm, state, t, mxstep=5000000)
-	pos = odeint(TwoLinkArm, state, t)
+	pos = odeint(TwoLinkArm, state, t, mxstep=5000000)
+	# pos = odeint(TwoLinkArm, state, t)
 
 	# Plotting Figures
 	# Joint Angles
@@ -186,8 +186,8 @@ if __name__ == '__main__':
 	for i in range(4):
 		plt.subplot(4, 1, i+1)
 		plt.plot(t, activation[i,:])
-		plt.ylim([0,1])
-		plt.ylabel('a_'+str(i))
+		plt.ylim([0,1.1])
+		plt.ylabel('a_'+str(i+1))
 		if i==3:
 			plt.xlabel('Time(s)')
 		else:
@@ -207,7 +207,7 @@ if __name__ == '__main__':
                               init_func=init)
 
 	# Save Animation
-	# ani.save('2linkarm_withMuscleDynamics.mp4', fps=60, extra_args=['-vcodec', 'libx264'])
+	ani.save('2linkarm_withMuscleDynamics.mp4', fps=60, extra_args=['-vcodec', 'libx264'])
 
 	plt.show()
 
