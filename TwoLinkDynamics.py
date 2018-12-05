@@ -26,9 +26,13 @@ def TwoLinkDynamics(theta1,theta2,dtheta1,dtheta2,Torques):
 	Gq = np.array([[	(m1*lc1 + m2*l1)*g*np.sin(theta1) + m2*g*lc2*np.sin(theta1+theta2)]\
 				,[		m2*g*lc2*np.sin(theta1+theta2)								]])
 	
-	# damping = np.array([[2.10,0],[0,2.10]])
+	# ONLY FOR TWO LINK DYNAMICS VALIDATION
+	Hq[0][1]=0
+	Hq[1][0]=0
+	Cq[0][1]=0
+	Cq[1][0]=0
+
 	damping = np.array([[0,0],[0,0]])
-	
 	acc = np.dot(np.linalg.inv(Hq),(Torques+-np.dot(Cq,qdot) - Gq - np.dot(damping,qdot)))
 
 	return acc
@@ -161,7 +165,7 @@ if __name__ == '__main__':
 			activation[j,i]=act(t[i],peak[j],duty[j],delay[j],background[j])
 
 	# Initial Condition
-	state = np.array([	-np.pi/8,0,		\
+	state = np.array([	0,0,		\
 						np.pi/2,0,		\
 						lm0_ad,lt0_ad,	\
 						lm0_pd,lt0_pd,	\
@@ -175,13 +179,16 @@ if __name__ == '__main__':
 
 	# Natural Frequency Calculation
 	end = t.shape[0] - 10
-	NF1=(((m1*lc1 + m2*l1)*g*np.cos(pos[end,0]) + m2*g*lc2*np.cos(pos[end,0]+pos[end,1]))\
+	A1=(m1*lc1 + m2*l1)*g
+	A2=m2*g*lc2
+	EQ1=-A2*np.sin(pos[end,1])/(A1+A2*np.cos(pos[end,1]))
+	NF1=((A1*np.cos(pos[end,0]) + A2*np.cos(pos[end,0]+pos[end,1]))\
 					/(alpha + 2*beta*np.cos(pos[end,1])))**0.5/2/np.pi
-	NF2=((m2*g*lc2*np.cos(pos[end,0]+pos[end,1]))\
+	NF2=((A2*np.cos(pos[end,0]+pos[end,1]))\
 					/(delta))**0.5/2/np.pi
-	print('Natural Frequency')
-	print('Shoulder(Hz):'+str(NF1))	
-	print('Elbow(Hz):'+str(NF2))
+	print('Equlibrium Pose Shoulder(rad): '+str(EQ1))
+	print('Natural Frequency Shoulder(Hz): '+str(NF1))	
+	print('Natural Frequency Elbow(Hz): '+str(NF2))
 
 	# Plotting Figures
 	# Joint Angles
@@ -191,6 +198,7 @@ if __name__ == '__main__':
 	plt.legend(['theta2','theta1'],loc='center right')
 	plt.xlabel('Time')
 	plt.ylabel('Joint Angle(rad)')
+	plt.grid()
 	
 	# Joint Velocities
 	plt.figure()
@@ -199,6 +207,7 @@ if __name__ == '__main__':
 	plt.legend(['theta2','theta1'],loc='center right')
 	plt.xlabel('Time')
 	plt.ylabel('Joint Velocit(rad/s)')
+	plt.grid()
 
 	# Muscle Tendon Length
 	plt.figure()
@@ -243,18 +252,24 @@ if __name__ == '__main__':
 	plt.show()
 
 	# Animation
+	# Cant get the animation interval to be right, give up for now.
+	# Ouput file fps is correct
+
+	dframe = 10
+	speedx = 0.1
 	fig = plt.figure(figsize=(4,4))
 	ax = fig.add_subplot(111, aspect='equal', autoscale_on=False,
                      xlim=(-1, 1), ylim=(-1, 1))
 	ax.grid()
 	line, = ax.plot([], [], 'o-', lw=4, mew=5)
 	time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
-	ani = animation.FuncAnimation(fig, animate, frames=t.shape[0]-1,
-                              interval=1, blit=True, 
+	interval = 1000 * dt *dframe / speedx
+	ani = animation.FuncAnimation(fig, animate, frames=range(0, t.shape[0], dframe),
+                              interval=interval, blit=True, 
                               init_func=init)
-
+	
 	# Save Animation
-	# ani.save('2linkarm_withMuscleDynamics.mp4', fps=int(1/dt), extra_args=['-vcodec', 'libx264'])
+	ani.save('2linkarm_withMuscleDynamics.mp4', fps=int(1/dt/dframe*speedx), extra_args=['-vcodec', 'libx264'])
 
 	plt.show()
 
