@@ -6,10 +6,10 @@
 # Units following SI: Force(N), Length(m), Velocity(m/s), Mass(kg)
 
 # Gravitational constant
-g = -9.81
+g = 9.81
 
 # Vmax got from scaling factor with respect to muscle length:
-factor_Vmax = 0.45/5.5
+factor_Vmax = -0.45/5.5
 
 
 # Biceps: Fmax as addition of Long and Short; lengths as the Long muscle
