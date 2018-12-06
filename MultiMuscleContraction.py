@@ -71,15 +71,12 @@ def TwoLinkArm(x,t):
 	# Environment Feedback Block
 	Torques = np.array([[ADeltoid_MomentArm(x[0])*F_ad + PDeltoid_MomentArm(x[0])*F_pd],\
 						[Bicep_MomentArm(x[2])*F_bb + Tricep_MomentArm(x[2])*F_tb]])
-	
-	# ONLY FOR TWO LINK DYNAMICS VALIDATION
-	Torques=np.array([[0],[0]])
-	
 	acc=TwoLinkDynamics(x[0],x[2],x[1],x[3],Torques)
 
 	# Debug Print
 	# print(str(Torques[0])+';  '+str(Torques[1]))
-	# print(str(F_ad)+';  '+str(F_bb))
+	# print(str(a_ad)+';  '+str(a_pd)+';  '+str(a_bb)+';  '+str(a_tb))
+	# print(str(F_ad)+';  '+str(F_pd)+';  '+str(F_bb)+';  '+str(F_tb))
 	# print(str((ADeltoid_MuscleLength(x[0])-lmtu0_ad)/x[0])+'; '+str((Bicep_MuscleLength(x[1])-lmtu0_bb)/x[1]))
 	# print(str(ADeltoid_MomentArm(x[0]))+';  '+str(Bicep_MomentArm(x[1])))
 	# print('EMA='+str((ADeltoid_MuscleLength(x[0])-lmtu0_ad)/x[0])+'; Or MA: '+str(ADeltoid_MomentArm(x[0])))
@@ -99,18 +96,12 @@ def TwoLinkArm(x,t):
 	dx[10] = (Lmuscle_new_tb - x[10])/dt
 	dx[11] = (Ltendon_new_tb - x[11])/dt
 
-	# ONLY FOR TWO LINK DYNAMICS VALIDATION
-	dx[0] = (0-x[0])/dt
-	dx[1] = (0-x[1])/dt
-	# dx[2] = (np.pi/2-x[2])/dt
-	# dx[3] = (0-x[3])/dt
-
 	# # Make sure elboe angle > 0, very crude estimation, complicated, better not let theta2 goes to zero ever
-	# if x[2] + x[3]*dt < 0:
-	# 	dx[0] = x[1] + x[3] * I2/(I1+I2)
-	# 	dx[1] = acc[0] + acc[1] * I2/(I1+I2)
-	# 	dx[2] = (0 - x[2])/dt
-	# 	print('Hit Elbow Joint Limit!')
+	if x[2] + x[3]*dt < 0:
+		# dx[0] = x[1] + x[3] * I2/(I1+I2)
+		# dx[1] = acc[0] + acc[1] * I2/(I1+I2)
+		# dx[2] = (0 - x[2])/dt
+		print('Hit Elbow Joint Limit!')
 
 	return dx
 
@@ -148,12 +139,12 @@ if __name__ == '__main__':
 	t = np.arange(0, 5.0, dt)
 
 	# Activation Parameters
-	f = 3.3
+	f = 3
 	T = 1/f
-	peak = 			[0.0,0.0,0.0,0.0]		# peak value of the signal
-	background = 	[0.0,0.0,0.0,0.0]		# background activation
-	duty = 			[0.0,0.0,0.0,0.0]		# duty cycle dimensionless %cycle
-	delay = 		[0.0,0.0,0.0,0.0]		# delay dimensionless %cycle
+	peak = 			[1.0,1.0,1.0,0.5]		# peak value of the signal
+	background = 	[0.0,0.0,0.5,0.0]		# background activation
+	duty = 			[0.5,0.5,0.5,0.5]		# duty cycle dimensionless %cycle
+	delay = 		[0.5,0.0,0.6,0.1]		# delay dimensionless %cycle
 	
 	activation=np.zeros([4,t.shape[0]])
 	for i in range(t.shape[0]):
@@ -161,7 +152,7 @@ if __name__ == '__main__':
 			activation[j,i]=act(t[i],peak[j],duty[j],delay[j],background[j])
 
 	# Initial Condition
-	state = np.array([	-np.pi/8,0,		\
+	state = np.array([	0,0,		\
 						np.pi/2,0,		\
 						lm0_ad,lt0_ad,	\
 						lm0_pd,lt0_pd,	\
@@ -170,35 +161,76 @@ if __name__ == '__main__':
 						])
 
 	# Integration
-	pos = odeint(TwoLinkArm, state, t, mxstep=5000000)	# Relaxing iteration requirement
-	# pos = odeint(TwoLinkArm, state, t)
+	# pos = odeint(TwoLinkArm, state, t, mxstep=5000000)	# Relaxing iteration requirement
+	pos = odeint(TwoLinkArm, state, t)
 
 	# Natural Frequency Calculation
 	end = t.shape[0] - 10
-	NF1=(((m1*lc1 + m2*l1)*g*np.cos(pos[end,0]) + m2*g*lc2*np.cos(pos[end,0]+pos[end,1]))\
+	A1=(m1*lc1 + m2*l1)*g
+	A2=m2*g*lc2
+	EQ1=-A2*np.sin(pos[end,1])/(A1+A2*np.cos(pos[end,1]))
+	NF1=((A1*np.cos(pos[end,0]) + A2*np.cos(pos[end,0]+pos[end,1]))\
 					/(alpha + 2*beta*np.cos(pos[end,1])))**0.5/2/np.pi
-	NF2=((m2*g*lc2*np.cos(pos[end,0]+pos[end,1]))\
+	NF2=((A2*np.cos(pos[end,0]+pos[end,1]))\
 					/(delta))**0.5/2/np.pi
-	print('Natural Frequency')
-	print('Shoulder(Hz):'+str(NF1))	
-	print('Elbow(Hz):'+str(NF2))
+	print('Equlibrium Pose Shoulder(rad): '+str(EQ1))
+	print('Natural Frequency Shoulder(Hz): '+str(NF1))	
+	print('Natural Frequency Elbow(Hz): '+str(NF2))
 
-	# Plotting Figures
+	# Saving Control
+	Flag_save = 1
+	FilePath = 'Free Movement/Case8_'
+	
+	# Saving Log File
+	if Flag_save:
+		file = open(FilePath+'Log.txt','w')
+		file.write('Activation Settings:\n') 
+		file.write('\tPeak:\t\t') 
+		for i in range(4):
+			file.write('{:.1f}'.format(peak[i])+'\t')
+		file.write('\n')
+		file.write('\tBackground:\t') 
+		for i in range(4):
+			file.write('{:.1f}'.format(background[i])+'\t')
+		file.write('\n')
+		file.write('\tDuty:\t\t') 
+		for i in range(4):
+			file.write('{:.1f}'.format(duty[i])+'\t')
+		file.write('\n')
+		file.write('\tDelay:\t\t') 
+		for i in range(4):
+			file.write('{:.1f}'.format(delay[i])+'\t')
+		file.write('\n')
+		file.write('\nEqulibrium Pose Shoulder(rad): '+str(EQ1))
+		file.write('\nNatural Frequency Shoulder(Hz): '+str(NF1))	
+		file.write('\nNatural Frequency Elbow(Hz): '+str(NF2))
+
+		file.close
+
+	# Figures
 	# Joint Angles
 	plt.figure()
 	plt.plot(t,pos[:,2])
 	plt.plot(t,pos[:,0])
 	plt.legend(['theta2','theta1'],loc='center right')
-	plt.xlabel('Time')
+	plt.xlabel('Time(s)')
 	plt.ylabel('Joint Angle(rad)')
-	
+	plt.grid()
+	if Flag_save:
+		plt.savefig(FilePath+'JointAngle.png')
+		plt.savefig(FilePath+'JointAngle.eps')
+
 	# Joint Velocities
 	plt.figure()
 	plt.plot(t,pos[:,3])
 	plt.plot(t,pos[:,1])
 	plt.legend(['theta2','theta1'],loc='center right')
-	plt.xlabel('Time')
+	plt.xlabel('Time(s)')
 	plt.ylabel('Joint Velocit(rad/s)')
+	plt.grid()
+	if Flag_save:
+		plt.savefig(FilePath+'JointVelocity.png')
+		plt.savefig(FilePath+'JointVelocity.eps')
 
 	# Muscle Tendon Length
 	plt.figure()
@@ -207,54 +239,85 @@ if __name__ == '__main__':
 	plt.plot(t, pos[:,4] - lm0_ad)
 	plt.plot(t, pos[:,5] - lt0_ad)
 	plt.legend(['muscle','tendon'],loc='center right')
-	plt.ylabel('AD')
+	plt.ylabel('L_AD(m)')
+	plt.xticks([])
 
 	plt.subplot(4,1,2)
 	plt.plot(t, pos[:,6] - lm0_pd)
 	plt.plot(t, pos[:,7] - lt0_pd)
 	plt.legend(['muscle','tendon'],loc='center right')
-	plt.ylabel('PD')
+	plt.ylabel('L_PD(m)')
+	plt.xticks([])
 
 	plt.subplot(4,1,3)
 	plt.plot(t, pos[:,8] - lm0_bb)
 	plt.plot(t, pos[:,9] - lt0_bb)
 	plt.legend(['muscle','tendon'],loc='center right')
-	plt.ylabel('BB')
+	plt.ylabel('L_BB(m)')
+	plt.xticks([])
 
 	plt.subplot(4,1,4)
 	plt.plot(t, pos[:,10] - lm0_tb)
 	plt.plot(t, pos[:,11] - lt0_tb)
 	plt.legend(['muscle','tendon'],loc='center right')
-	plt.ylabel('TB')
-	plt.xlabel('Time')
+	plt.ylabel('L_TB(m)')
+	plt.xlabel('Time(s)')
+
 	
+	if Flag_save:
+		plt.savefig(FilePath+'Lengths.png')
+		plt.savefig(FilePath+'Lengths.eps')
+
 	# Plot Activation Level
+	YLabels=['AD','PD','BB','TB']
 	plt.figure()
 	for i in range(4):
 		plt.subplot(4, 1, i+1)
 		plt.plot(t, activation[i,:])
 		plt.ylim([0,1.1])
-		plt.ylabel('a_'+str(i+1))
+		plt.ylabel('a_'+YLabels[i])
 		if i==3:
 			plt.xlabel('Time(s)')
 		else:
 			plt.xticks([])
 
-	plt.show()
+	if Flag_save:
+		plt.savefig(FilePath+'Activation.png')
+		plt.savefig(FilePath+'Activation.eps')
 
+	# End Effector Trajectory
+	plt.figure()
+	plt.plot(l1*np.sin(pos[:,0])+l2*np.sin(pos[:,0]+pos[:,2]),\
+			-l1*np.cos(pos[:,0])-l2*np.cos(pos[:,0]+pos[:,2]))
+	plt.plot(l1*np.sin(pos[:,0]),\
+			-l1*np.cos(pos[:,0]))
+	plt.plot(0,0,'ko')
+	plt.xlabel('x(m)')
+	plt.ylabel('y(m)')
+	plt.legend(['hand','elbow','shoulder'],loc='upper right')
+	if Flag_save:
+		plt.savefig(FilePath+'Trajectory.png')
+		plt.savefig(FilePath+'Trajectory.eps')
 	# Animation
+	# Cant get the animation interval to be right, give up for now.
+	# Ouput file fps is correct
+
+	dframe = 10
+	speedx = 1
 	fig = plt.figure(figsize=(4,4))
 	ax = fig.add_subplot(111, aspect='equal', autoscale_on=False,
                      xlim=(-1, 1), ylim=(-1, 1))
 	ax.grid()
 	line, = ax.plot([], [], 'o-', lw=4, mew=5)
 	time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
-	ani = animation.FuncAnimation(fig, animate, frames=t.shape[0]-1,
-                              interval=1, blit=True, 
+	interval = 1000 * dt *dframe / speedx
+	ani = animation.FuncAnimation(fig, animate, frames=range(0, t.shape[0], dframe),
+                              interval=interval, blit=True, 
                               init_func=init)
-
+	
 	# Save Animation
-	# ani.save('2linkarm_withMuscleDynamics.mp4', fps=int(1/dt), extra_args=['-vcodec', 'libx264'])
+	if Flag_save:
+		ani.save(FilePath+'Animation.mp4', fps=int(1/dt/dframe*speedx), extra_args=['-vcodec', 'libx264'])
 
 	plt.show()
 

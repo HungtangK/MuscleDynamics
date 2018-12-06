@@ -104,10 +104,10 @@ def TwoLinkArm(x,t):
 	dx[11] = (Ltendon_new_tb - x[11])/dt
 
 	# ONLY FOR TWO LINK DYNAMICS VALIDATION
-	dx[0] = (0-x[0])/dt
-	dx[1] = (0-x[1])/dt
-	# dx[2] = (np.pi/2-x[2])/dt
-	# dx[3] = (0-x[3])/dt
+	# dx[0] = (0-x[0])/dt
+	# dx[1] = (0-x[1])/dt
+	dx[2] = (np.pi/2-x[2])/dt
+	dx[3] = (0-x[3])/dt
 
 	# # Make sure elboe angle > 0, very crude estimation, complicated, better not let theta2 goes to zero ever
 	# if x[2] + x[3]*dt < 0:
@@ -256,7 +256,7 @@ if __name__ == '__main__':
 	# Ouput file fps is correct
 
 	dframe = 10
-	speedx = 0.1
+	speedx = 1
 	fig = plt.figure(figsize=(4,4))
 	ax = fig.add_subplot(111, aspect='equal', autoscale_on=False,
                      xlim=(-1, 1), ylim=(-1, 1))

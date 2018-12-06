@@ -1,0 +1,9 @@
+Activation Settings:
+	Peak:		0.0	0.0	1.0	0.0	
+	Background:	0.0	0.0	0.1	0.0	
+	Duty:		0.0	0.0	0.5	0.5	
+	Delay:		0.0	0.0	0.0	0.5	
+
+Equlibrium Pose Shoulder(rad): -0.08764409471824203
+Natural Frequency Shoulder(Hz): 0.8688565489676174
+Natural Frequency Elbow(Hz): 1.1656276339130323

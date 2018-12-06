@@ -9,7 +9,7 @@
 g = 9.81
 
 # Vmax got from scaling factor with respect to muscle length:
-factor_Vmax = -0.45/5.5
+factor_Vmax = -0.45/0.055
 
 
 # Biceps: Fmax as addition of Long and Short; lengths as the Long muscle

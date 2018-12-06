@@ -18,12 +18,12 @@ def TwoLinkDynamics(theta1,theta2,dtheta1,dtheta2,Torques):
 	Cq = np.array([[	-beta*np.sin(theta2)*dtheta2	,	-beta*np.sin(theta2)*(dtheta1+dtheta2)]\
 				,[		beta*np.sin(theta2)*dtheta1		,	0						]])	
 	Gq = np.array([[	(m1*lc1 + m2*l1)*g*np.sin(theta1) + m2*g*lc2*np.sin(theta1+theta2)]\
-				,[		m2*g*l2*np.sin(theta1+theta2)								]])
+				,[		m2*g*lc2*np.sin(theta1+theta2)								]])
 	
 	# damping = np.array([[2.10,0],[0,2.10]])
 	damping = np.array([[0,0],[0,0]])
 	
-	acc = np.dot(np.linalg.inv(Hq),(Torques+-np.dot(Cq,qdot) + Gq - np.dot(damping,qdot)))
+	acc = np.dot(np.linalg.inv(Hq),(Torques+-np.dot(Cq,qdot) - Gq - np.dot(damping,qdot)))
 
 	return acc
 
@@ -56,7 +56,7 @@ def TwoLinkArm(x,t):
 		a=0
 
 	# Method flag, if 1 then mtu based new method if 0 then lm based old method
-	Flag_Method = 0
+	Flag_Method = 1
 
 	# Muscle Dynamics Block
 	if Flag_Method == 0:
@@ -98,6 +98,7 @@ def TwoLinkArm(x,t):
 	# Make sure elboe angle > 0
 	if x[2] + x[3]*dt < 0:
 		dx[2] = (0 - x[2])/dt
+		print('Hit Elbow Joint Limit!')
 
 	return dx
 
