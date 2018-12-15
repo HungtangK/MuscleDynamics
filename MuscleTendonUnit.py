@@ -85,6 +85,16 @@ class MTU:
 		Ltendon=self.TendonDynamics(Fmtu)
 		return Fmtu, Lmuscle, Ltendon
 
+	def MTU2(self,act,Lmtu,Vmtu,Ltendon_old):
+		Lmuscle=Lmtu-Ltendon_old
+		Vmuscle=Vmtu
+		Factive=self.MuscleDynamics(act,Lmuscle,Vmuscle)
+		Fpassive=self.PassiveMuscleForce(Lmuscle)
+		Fmtu=Factive+Fpassive
+		Ltendon=self.TendonDynamics(Fmtu)
+		Lmuscle=Lmtu+Vmtu*self.dt-Ltendon_old
+		return Fmtu, Lmuscle, Ltendon
+
 		# I think the logic is this:
 		# What this block does is taking in length of MTU, activation signal, and the old length of muscle and tendon
 		# It calculate vm and lm as intermediate steps, bunch of forces,

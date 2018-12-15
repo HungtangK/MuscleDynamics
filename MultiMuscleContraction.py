@@ -36,7 +36,7 @@ def TwoLinkDynamics(theta1,theta2,dtheta1,dtheta2,Torques):
 def TwoLinkArm(x,t):
 	# Main Integration Block
 
-	# 6 dimensional vector
+	# 12 dimensional vector
 	#x[0] - shoulder angle
 	#x[1] - shoulder velocity
 	#x[2] - elbow angle

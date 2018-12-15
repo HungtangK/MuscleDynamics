@@ -4,9 +4,8 @@ from baselines.common.cmd_util import common_arg_parser
 from baselines.common import tf_util as U
 from baselines import logger
 
-import sys
-sys.path.insert(0,"/home/visak/Documents/MuscleDynamics")
-from TwoDofArm import TwoDofArmEnv
+# from TwoDofArm import TwoDofArmEnv
+from TwoDofArm_new import TwoDofArmEnv
 
 
 def train(num_timesteps, seed):
@@ -15,7 +14,9 @@ def train(num_timesteps, seed):
     def policy_fn(name, ob_space, ac_space):
         return mlp_policy.MlpPolicy(name=name, ob_space=ob_space, ac_space=ac_space,
             hid_size=128, num_hid_layers=2)
-    env = TwoDofArmEnv(ActiveMuscles='antagonistic',actionParameterization=True,sim_length=0.005,
+    # env = TwoDofArmEnv(ActiveMuscles='antagonistic',actionParameterization=True,sim_length=0.005,
+    #     traj_track=True,exo=True,exo_gain=70.,delay=0.020)
+    env = TwoDofArmEnv(sim_length=0.005,
         traj_track=True,exo=True,exo_gain=70.,delay=0.020)
     pposgd_simple.learn(env, policy_fn,
             max_timesteps=num_timesteps,

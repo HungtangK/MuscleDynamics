@@ -144,4 +144,23 @@ def PDeltoid_MuscleLength(angle):
 	ml = cst_pd + slope_pd*shoulder_angle
 	return ml*0.001
 
+def TwoLinkDynamics(theta1,theta2,dtheta1,dtheta2,Torques):
+	# Take in kinematics data and torque
+	# Return the accelerations at the joint level
 
+	qdot = np.array([[dtheta1],[dtheta2]])
+	q = np.array([[theta1],[theta2]])
+	
+	Hq = np.array([[	alpha + 2*beta*np.cos(theta2)	,	delta + beta*np.cos(theta2)]\
+				,[		delta + beta*np.cos(theta2)		,  	delta					]])
+	Cq = np.array([[	-beta*np.sin(theta2)*dtheta2	,	-beta*np.sin(theta2)*(dtheta1+dtheta2)]\
+				,[		beta*np.sin(theta2)*dtheta1		,	0						]])	
+	Gq = np.array([[	(m1*lc1 + m2*l1)*g*np.sin(theta1) + m2*g*lc2*np.sin(theta1+theta2)]\
+				,[		m2*g*lc2*np.sin(theta1+theta2)								]])
+	
+	# damping = np.array([[2.10,0],[0,2.10]])
+	damping = np.array([[0,0],[0,0]])
+	
+	acc = np.dot(np.linalg.inv(Hq),(Torques+-np.dot(Cq,qdot) - Gq - np.dot(damping,qdot)))
+
+	return acc

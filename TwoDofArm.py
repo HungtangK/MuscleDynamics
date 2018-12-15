@@ -276,27 +276,25 @@ class TwoDofArmEnv(gym.Env):
 			a_ad = self.activation_ad(t)
 			a_pd = self.activation_pd(t)
 
-			fl_bb = np.exp(-((lm_bb/lm0_bb) - 1)**2/0.45)
-			fl_tb = np.exp(-((lm_tb/lm0_tb) - 1)**2/0.45)
-			fl_ad = np.exp(-((lm_ad/lm0_ad) - 1)**2/0.45)
-			fl_pd = np.exp(-((lm_pd/lm0_pd) - 1)**2/0.45)	
+			theta2_new = x[2] + x[3]*self.dt
 
 			# Bicep Muscle Dynamics
 			lmtu_old_bb = self.Bicep_MuscleLength(theta2)
-
+			
 			F_a_bb= self.MTU_unit_bb.MuscleDynamics(a_bb,lm_bb,vm_bb)
 			F_p_bb = self.MTU_unit_bb.PassiveMuscleForce(lm_bb)
-			#print("F_p_bb",F_p_bb)
 			F_m_bb = F_a_bb + F_p_bb
-			#print("F_m_bb",F_m_bb)
-			ema_bb = self.Bicep_MomentArm(theta2)
-			Torque_bb = ema_bb*F_m_bb
+			
 			lt_bb = self.MTU_unit_bb.TendonDynamics(F_m_bb)
-			theta2_new = x[2] + x[3]*self.dt
+
 			new_Lmtu_bb = self.Bicep_MuscleLength(theta2_new)
 			lm_new_bb = new_Lmtu_bb# - lt_bbs
+
 			dlm_bb = (lm_new_bb - lmtu_old_bb)/self.dt #+0.245
 			dvm_bb = (dlm_bb - vm_bb)/self.dt
+
+			ema_bb = self.Bicep_MomentArm(theta2)
+			Torque_bb = ema_bb*F_m_bb
 
 			#Tricep Muscle Dynamics
 			lmtu_old_tb = self.Tricep_MuscleLength(theta2)
@@ -680,7 +678,7 @@ class TwoDofArmEnv(gym.Env):
 			fl_ad = np.exp(-((lm_ad/lm0_ad) - 1)**2/0.45)
 			fl_pd = np.exp(-((lm_pd/lm0_pd) - 1)**2/0.45)
 			
-			F_a_bb,_,_ = self.MTU_unit_bb.MuscleDynamics(a_bb,lm_bb,vm_bb,fl_bb)
+			F_a_bb = self.MTU_unit_bb.MuscleDynamics(a_bb,lm_bb,vm_bb)
 			F_p_bb = self.MTU_unit_bb.PassiveMuscleForce(lm_bb)
 			F_m_bb = F_a_bb + F_p_bb
 			ema_bb = self.Bicep_MomentArm(theta2)
@@ -688,7 +686,7 @@ class TwoDofArmEnv(gym.Env):
 
 			#Tricep Muscle Dynamics
 			
-			F_a_tb,_,_ = self.MTU_unit_tb.MuscleDynamics(a_tb,lm_tb,vm_tb,fl_tb)
+			F_a_tb = self.MTU_unit_tb.MuscleDynamics(a_tb,lm_tb,vm_tb)
 			F_p_tb = self.MTU_unit_tb.PassiveMuscleForce(lm_tb)
 			F_m_tb = F_a_tb + F_p_tb
 			ema_tb = self.Tricep_MomentArm(theta2)
@@ -697,7 +695,7 @@ class TwoDofArmEnv(gym.Env):
 
 			# Anterior Deltoid Muscle Dynamics
 			
-			F_a_ad,_,_ = self.MTU_unit_ad.MuscleDynamics(a_ad,lm_ad,vm_ad,fl_ad)
+			F_a_ad = self.MTU_unit_ad.MuscleDynamics(a_ad,lm_ad,vm_ad)
 			F_p_ad = self.MTU_unit_ad.PassiveMuscleForce(lm_ad)
 			F_m_ad = F_a_ad + F_p_ad
 			ema_ad = self.ADeltoid_MomentArm(theta1)
@@ -707,7 +705,7 @@ class TwoDofArmEnv(gym.Env):
 			
 			# Posterios Deltoid Muscle Dynamics
 			lmtu_old_pd = self.PDeltoid_MuscleLength(theta1)
-			F_a_pd,_,_ = self.MTU_unit_pd.MuscleDynamics(a_pd,lm_pd,vm_pd,fl_pd)
+			F_a_pd = self.MTU_unit_pd.MuscleDynamics(a_pd,lm_pd,vm_pd)
 			F_p_pd = self.MTU_unit_pd.PassiveMuscleForce(lm_pd)
 			F_m_pd = F_a_pd + F_p_pd
 			ema_pd = self.PDeltoid_MomentArm(theta1)

@@ -1,8 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
-import sys
-sys.path.insert(0,"/home/visak/Documents/MuscleDynamics")
 from TwoDofArm import TwoDofArmEnv
 import gym 
 from gym import error, spaces
@@ -57,7 +55,7 @@ env = TwoDofArmEnv(ActiveMuscles='antagonistic',actionParameterization=True,sim_
 pol = MlpPolicy("pi",env.observation_space,env.action_space,hid_size=128,num_hid_layers=2)
 
 U.initialize()
-U.load_state('Exo_elbow_70_delay020')#reacherNoExo_11 _exo_k50   act_pen_discrete_new_exo_k200
+U.load_state('Muscle/Exo_elbow_70_delay020')#reacherNoExo_11 _exo_k50   act_pen_discrete_new_exo_k200
 #Trajectory3_continuos
 n = 100
 r = 0.075
@@ -140,7 +138,7 @@ plt.plot(x[:,0],x[:,1],'b',linewidth=1)
 line, = ax.plot([], [], 'o-', lw=4, mew=5)
 time_text = ax.text(0.02, 0.95, '', transform=ax.transAxes)
 ani = animation.FuncAnimation(fig, animate, frames=frames,interval=0, blit=True,init_func=init)
-ani.save('Target_reac0.mp4', fps=60,extra_args=['-vcodec', 'libx264'])
+ani.save('Muscle/Target_react.mp4', fps=60,extra_args=['-vcodec', 'libx264'])
 
 plt.figure()
 plt.plot(activations)
