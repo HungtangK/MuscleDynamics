@@ -167,6 +167,9 @@ def TwoLinkDynamics(theta1,theta2,dtheta1,dtheta2,Torques):
 
 def HandleForce(t):
 	# Handle Force in N
+	# In the video, the wok is on the left and the chef is on the right
+	# Therefore a negative sign is put in front of Fx and Px
+
 	Fx = 27.8013 * np.cos(	3.0395*t  + -0.6416 )+\
     	4.1793   * np.cos(	0     *t  +  0		)+\
     	0.4661   * np.cos( 	9.1185*t  + -2.8723 )
@@ -175,10 +178,12 @@ def HandleForce(t):
     	3.4581   * np.cos(      0 *t  +  0		)+\
     	2.9076   * np.cos( 6.0790 *t  + -0.6469 )
 
-	return np.array([[Fx],[Fy]])
+	return np.array([[-Fx],[Fy]])
 
 def HandlePosition(t):
 	# Handle Position in m
+	# Coordinate originates at the stove rim. 
+	
 	Px = 149.7777 * np.cos( 0      *t  +  0		)+\
    		35.7263   * np.cos( 3.0395 *t  +  2.8876)+\
     	2.3334    * np.cos( 6.0790 *t  + -0.9191)
@@ -189,4 +194,28 @@ def HandlePosition(t):
 
     Px = Px/1000
     Py = Py/1000
-	return np.array([[Px],[Py]])
+
+	return np.array([[-Px],[Py]])
+
+def ExternalTorque(theta1,theta2,t)
+	# Return External Torque as a result of the handle force
+	# Handle position is to be treated as one of the learning objective therefore not included in the function
+
+	# Receive the Handle Force
+	HandleForce = HandleForce(t)
+
+	# Vector from the shoulder to the hand
+	Vs = [[l1*np.sin(theta1)+l2*np.sin(theta1+theta2)],[-l1*np.cos(theta1)-l2*np.cos(theta1+theta2)]]
+	# Vector prependicular to Vs in the positive torque direction
+	Vsn = [-Vs[1],Vs[0]]
+	# External Torque on the shoulder
+	ExternalTorqueShoulder = np.dot(HandleForce,Vsn)
+
+	# Vector from the elbow to the hand
+	Ve = [[l2*np.sin(theta1+theta2)],[-l2*np.cos(theta1+theta2)]]
+	# Vector prependicular to Vs in the positive torque direction
+	Ven = [-Vs[1],Vs[0]]
+	# External Torque on the shoulder
+	ExternalTorqueElbow = np.dot(HandleForce,Ven)
+
+	return np.array([[ExternalTorqueShoulder],[ExternalTorqueElbow]])
