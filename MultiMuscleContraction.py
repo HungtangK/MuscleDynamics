@@ -12,27 +12,6 @@ def act(t,peak,duty,delay,background):
 	# Function form of the square wave activation signal
 	return max(background,peak*(((t-delay*T)%T)/T < duty))
 
-def TwoLinkDynamics(theta1,theta2,dtheta1,dtheta2,Torques):
-	# Take in kinematics data and torque
-	# Return the accelerations at the joint level
-
-	qdot = np.array([[dtheta1],[dtheta2]])
-	q = np.array([[theta1],[theta2]])
-	
-	Hq = np.array([[	alpha + 2*beta*np.cos(theta2)	,	delta + beta*np.cos(theta2)]\
-				,[		delta + beta*np.cos(theta2)		,  	delta					]])
-	Cq = np.array([[	-beta*np.sin(theta2)*dtheta2	,	-beta*np.sin(theta2)*(dtheta1+dtheta2)]\
-				,[		beta*np.sin(theta2)*dtheta1		,	0						]])	
-	Gq = np.array([[	(m1*lc1 + m2*l1)*g*np.sin(theta1) + m2*g*lc2*np.sin(theta1+theta2)]\
-				,[		m2*g*lc2*np.sin(theta1+theta2)								]])
-	
-	# damping = np.array([[2.10,0],[0,2.10]])
-	damping = np.array([[0,0],[0,0]])
-	
-	acc = np.dot(np.linalg.inv(Hq),(Torques+-np.dot(Cq,qdot) - Gq - np.dot(damping,qdot)))
-
-	return acc
-
 def TwoLinkArm(x,t):
 	# Main Integration Block
 
@@ -62,11 +41,17 @@ def TwoLinkArm(x,t):
 	Lmtu_bb=Bicep_MuscleLength(x[2])
 	Lmtu_tb=Tricep_MuscleLength(x[2])
 
+	# MTU velocity from the joint angles
+	Vmtu_ad=(ADeltoid_MuscleLength(x[0]+x[1]*dt)-Lmtu_ad)/dt
+	Vmtu_pd=(PDeltoid_MuscleLength(x[0]+x[1]*dt)-Lmtu_pd)/dt
+	Vmtu_bb=(Bicep_MuscleLength(x[2]+x[3]*dt)-Lmtu_bb)/dt
+	Vmtu_tb=(Tricep_MuscleLength(x[2]+x[3]*dt)-Lmtu_tb)/dt
+
 	# Muscle Dynamics Block
-	F_ad, Lmuscle_new_ad, Ltendon_new_ad=MTU_ad.MTU(a_ad,Lmtu_ad,x[4],x[5])
-	F_pd, Lmuscle_new_pd, Ltendon_new_pd=MTU_pd.MTU(a_pd,Lmtu_pd,x[6],x[7])
-	F_bb, Lmuscle_new_bb, Ltendon_new_bb=MTU_bb.MTU(a_bb,Lmtu_bb,x[8],x[9])
-	F_tb, Lmuscle_new_tb, Ltendon_new_tb=MTU_tb.MTU(a_tb,Lmtu_tb,x[10],x[11])
+	F_ad, Lmuscle_new_ad, Ltendon_new_ad=MTU_ad.MTU2(a_ad,Lmtu_ad,Vmtu_ad,x[5])
+	F_pd, Lmuscle_new_pd, Ltendon_new_pd=MTU_pd.MTU2(a_pd,Lmtu_pd,Vmtu_pd,x[7])
+	F_bb, Lmuscle_new_bb, Ltendon_new_bb=MTU_bb.MTU2(a_bb,Lmtu_bb,Vmtu_bb,x[9])
+	F_tb, Lmuscle_new_tb, Ltendon_new_tb=MTU_tb.MTU2(a_tb,Lmtu_tb,Vmtu_tb,x[11])
 
 	# Environment Feedback Block
 	Torques = np.array([[ADeltoid_MomentArm(x[0])*F_ad + PDeltoid_MomentArm(x[0])*F_pd],\
@@ -179,7 +164,7 @@ if __name__ == '__main__':
 
 	# Saving Control
 	Flag_save = 1
-	FilePath = 'Free Movement/Case8_'
+	FilePath = 'Free Movement/New_'
 	
 	# Saving Log File
 	if Flag_save:
