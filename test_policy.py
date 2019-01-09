@@ -51,7 +51,7 @@ def animate(i):
 
 U.make_session(num_cpu=1).__enter__()
 
-env = TwoDofArmEnv(ActiveMuscles='antagonistic',actionParameterization=True,sim_length=0.005,traj_track=True,exo=True,exo_gain=70,delay=0.020)
+env = TwoDofArmEnv(sim_length=0.005,traj_track=True,exo_gain=00,exo_delay=0.020)
 pol = MlpPolicy("pi",env.observation_space,env.action_space,hid_size=128,num_hid_layers=2)
 
 U.initialize()

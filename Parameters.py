@@ -174,7 +174,7 @@ def HandleForce(t):
     	4.1793   * np.cos(	0     *t  +  0		)+\
     	0.4661   * np.cos( 	9.1185*t  + -2.8723 )
 
-    Fy = 7.9358  * np.cos(  3.0395*t  + -0.5657	)+\
+	Fy = 7.9358  * np.cos(  3.0395*t  + -0.5657	)+\
     	3.4581   * np.cos(      0 *t  +  0		)+\
     	2.9076   * np.cos( 6.0790 *t  + -0.6469 )
 
@@ -188,16 +188,16 @@ def HandlePosition(t):
    		35.7263   * np.cos( 3.0395 *t  +  2.8876)+\
     	2.3334    * np.cos( 6.0790 *t  + -0.9191)
 
-    Py = 145.8037 * np.cos( 0      *t  +  0		)+\
+	Py = 145.8037 * np.cos( 0      *t  +  0		)+\
    		35.7356   * np.cos( 3.0395 *t  +  1.2410)+\
     	2.3208    * np.cos(	6.0790 *t  +  2.9916)
 
-    Px = Px/1000
-    Py = Py/1000
+	Px = Px/1000
+	Py = Py/1000
 
 	return np.array([[-Px],[Py]])
 
-def ExternalTorque(theta1,theta2,t)
+def ExternalTorque(theta1,theta2,t):
 	# Return External Torque as a result of the handle force
 	# Handle position is to be treated as one of the learning objective therefore not included in the function
 
