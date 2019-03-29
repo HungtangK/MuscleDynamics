@@ -168,7 +168,7 @@ def TwoLinkDynamics(theta1,theta2,dtheta1,dtheta2,Torques):
 def HandleForce(t):
 	# Handle Force in N
 	# In the video, the wok is on the left and the chef is on the right
-	# Therefore a negative sign is put in front of Fx and Px
+	# Therefore a negative sign is put in front of Fx and Px when the function returns
 
 	Fx = 27.8013 * np.cos(	3.0395*t  + -0.6416 )+\
     	4.1793   * np.cos(	0     *t  +  0		)+\
@@ -181,7 +181,7 @@ def HandleForce(t):
 	return np.array([[-Fx],[Fy]])
 
 def HandlePosition(t):
-	# Handle Position in m
+	# Handle Position in m after deviding by 1000
 	# Coordinate originates at the stove rim. 
 	
 	Px = 149.7777 * np.cos( 0      *t  +  0		)+\
@@ -219,3 +219,19 @@ def ExternalTorque(theta1,theta2,t):
 	ExternalTorqueElbow = np.dot(HandleForce,Ven)
 
 	return np.array([[ExternalTorqueShoulder],[ExternalTorqueElbow]])
+
+def TargetAngle(t,Sx,Sy):
+	# Inverse kinematics that returns the target joint angles
+	# Sx and Sy are free parameters that indicates the location of the stove with respect to the shoulder
+	# Sx and Sy should be constants, unit in m
+	# A rough reference value for Sx and Sy can be [0.2, -0.5]
+	# Location of the handle [Hx,Hy] = [Sx,Sy] + [Px,Py]
+	# Reachable space 0.05 < sqrt( Hx^2+Hy^2 ) < 0.55
+	# With joint limit theta2>0, the solution is always unique
+
+	Hx = Sx + Px
+	Hy = Sy + Py
+	theta2_target = np.arccos( ( (Hx^2+Hy^2)-(l1^2+l2^2) ) / (2*l1*l2) )
+	theta1_target = np.arctan2(Hx,-Hy) - np.arctan2(l2*np.sin(theta2_target),l1+l2*np.cos(theta2_target))
+
+	return np.array([[theta1_target],[theta2_target]])

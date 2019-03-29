@@ -12,8 +12,6 @@ def train(num_timesteps, seed):
     def policy_fn(name, ob_space, ac_space):
         return mlp_policy.MlpPolicy(name=name, ob_space=ob_space, ac_space=ac_space,
             hid_size=128, num_hid_layers=2)
-    # env = TwoDofArmEnv(ActiveMuscles='antagonistic',actionParameterization=True,sim_length=0.005,
-    #     traj_track=True,exo=True,exo_gain=70.,delay=0.020)
     env = TwoDofArmEnv(sim_length=0.005,
         traj_track=True,exo_gain=70,exo_delay=0.02)
     pposgd_simple.learn(env, policy_fn,
